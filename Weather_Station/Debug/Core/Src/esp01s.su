@@ -1,0 +1,5 @@
+../Core/Src/esp01s.c:35:6:setup	4	static
+../Core/Src/esp01s.c:42:6:check_at	16	static
+../Core/Src/esp01s.c:49:6:reset_by_wire	8	static
+../Core/Src/esp01s.c:58:6:reset_by_code	16	static
+../Core/Src/esp01s.c:68:5:mode_set_station	16	static
