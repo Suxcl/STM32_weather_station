@@ -1,5 +1,5 @@
-../Core/Src/main.c:168:8:clearBuffers	1
-../Core/Src/main.c:104:5:main	16
-../Core/Src/main.c:346:6:SystemClock_Config	3
-../Core/Src/main.c:384:6:HAL_GPIO_EXTI_Callback	2
-../Core/Src/main.c:399:6:Error_Handler	1
+../Core/Src/main.c:209:8:clearBuffers	1
+../Core/Src/main.c:121:5:main	6
+../Core/Src/main.c:395:6:SystemClock_Config	3
+../Core/Src/main.c:433:6:HAL_GPIO_EXTI_Callback	2
+../Core/Src/main.c:448:6:Error_Handler	1

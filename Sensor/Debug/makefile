@@ -60,8 +60,8 @@ all: main-build
 main-build: Sensor.elf secondary-outputs
 
 # Tool invocations
-Sensor.elf Sensor.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\STM32CubeIDE\workspace_1.16.0\Sensor\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Sensor.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\STM32CubeIDE\workspace_1.16.0\Sensor\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Sensor.elf Sensor.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Sensor.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

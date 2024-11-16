@@ -18,9 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "i2c.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -28,6 +30,9 @@
 #include "stdio.h"
 #include "string.h"
 #include "myFunctions.h"
+#include "bmp280.h"
+#include "esp01s.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,22 +59,37 @@
 // vats
 uint8_t count = 0;
 
+// 		=== Sensors ===
 
-// LoRa vars
+// BMP280 - digital pressure sensor
+BMP280_HandleTypedef bmp280;
+float pressure, temperature, humidity;
+
+uint16_t size;
+uint8_t Data[256];
+
+
+// DHA20 - temperature and humidity sensor
+
+
+
+
+// 		===== LoRa =====
+
 LoRa myLoRa;
 uint16_t LoRa_stat;
 uint8_t received_data[10];
 uint8_t packet_size = -1;
-
 
 uint8_t read_data[128];
 uint8_t read_data2[2];
 uint8_t send_data[128];
 int			RSSI;
 
-// ESP-01S - wifi module
 
+// 		===== ESP-01S =====
 
+Esp01s Esp;
 uint8_t f1;
 uint32_t f2;
 size_t ATSize = 150;
@@ -80,9 +100,6 @@ uint8_t rxBuffer[512] = {0};
 uint8_t ATisOK;
 
 HAL_StatusTypeDef status;
-
-char str[] = "Hello!";
-
 
 /* USER CODE END PV */
 
@@ -128,9 +145,23 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  // === Sensor setup ===
 
-  // --- LoRa setup ---
+  bmp280_init_default_params(&bmp280.params);
+  bmp280.addr = BMP280_I2C_ADDRESS_0;
+  bmp280.i2c = &hi2c1;
+
+//  while (!bmp280_init(&bmp280, &bmp280.params)) {
+//  	size = sprintf((char *)Data, "BMP280 initialization failed\n");
+//  	HAL_Delay(100);
+//  }
+//  bool bme280p = bmp280.id == BME280_CHIP_ID;
+//  size = sprintf((char *)Data, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
+//  HAL_Delay(100);
+
+  // ===== LoRa setup =====
 
   myLoRa = newLoRa();
 
@@ -155,14 +186,24 @@ int main(void)
   if(LoRa_init(&myLoRa)==LORA_OK){
 	LoRa_stat = 1;
 	blink(3, 500);
-
   };
 
   //LoRa_startReceiving(&myLoRa);
 
-  // --- end of LoRa setup ---
+  // ===== ESP setup ======
 
-  // ESP setup start
+  Esp = newEsp01s(&huart1);
+
+  sprintf(Esp.ssid,"Netis Hifi Point");
+  sprintf(Esp.password,"kajaK123");
+  sprintf(Esp.server_protocol,"TCP");
+  sprintf(Esp.server_ip,"192.168.1.2");
+  sprintf(Esp.server_port,"8000");
+
+
+
+  esp_setup(&Esp);
+
 
 
   void clearBuffers(){
@@ -170,103 +211,115 @@ int main(void)
 	  memset(ATcommand,0,sizeof(ATcommand));
 	  memset(toPost,0,sizeof(toPost));
   }
-
-
+//
+//
 //  clearBuffers();
 //  sprintf(ATcommand,"AT+RST\r\n");
 //  memset(rxBuffer,0,sizeof(rxBuffer));
 //  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
 //  status = HAL_UART_Receive(&huart1, rxBuffer, 10, 100);
 //  HAL_Delay(500);
+//
+//  ATisOK = 0;
+//  while(!ATisOK){
+//	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
+//	  memset(rxBuffer,0,sizeof(rxBuffer));
+//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+//	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
+//	  if(strstr((char *)rxBuffer,"OK")){
+//		ATisOK = 1;
+//	  }
+//
+//  }
+//
+//
+//
+//
+//
+//  ATisOK = 0;
+//  while(!ATisOK){
+//	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
+//	  memset(rxBuffer,0,sizeof(rxBuffer));
+//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+//	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
+//	  if(strstr((char *)rxBuffer,"CONNECTED")){
+//		  ATisOK = 1;
+//	  }
+//
+//  }
+//  ATisOK = 0;
+//  while(!ATisOK){
+//	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
+//	  memset(rxBuffer,0,sizeof(rxBuffer));
+//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+//	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
+//	  if(strstr((char *)rxBuffer,"OK")){
+//		ATisOK = 1;
+//	  }
+//
+//  }
+//  ATisOK = 0;
+//  while(!ATisOK){
+//  	  sprintf(ATcommand,"AT+CIFSR\r\n");
+//  	  memset(rxBuffer,0,sizeof(rxBuffer));
+//  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+//  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
+//  	  if(strstr((char *)rxBuffer,"STAIP")){
+//  		ATisOK = 1;
+//  	  }
+//
+//  }
+//
+//  clearBuffers();
+//  if (!strstr((char *)rxBuffer, "STATUS:3")) {
+//	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
+//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+//	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
+//
+//  }
 
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
-	  if(strstr((char *)rxBuffer,"OK")){
-		ATisOK = 1;
-	  }
-
-  }
-
-
-
-
-
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
-	  if(strstr((char *)rxBuffer,"CONNECTED")){
-		  ATisOK = 1;
-	  }
-
-  }
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
-	  if(strstr((char *)rxBuffer,"OK")){
-		ATisOK = 1;
-	  }
-
-  }
-  ATisOK = 0;
-  while(!ATisOK){
-  	  sprintf(ATcommand,"AT+CIFSR\r\n");
-  	  memset(rxBuffer,0,sizeof(rxBuffer));
-  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
-  	  if(strstr((char *)rxBuffer,"STAIP")){
-  		ATisOK = 1;
-  	  }
-
-  }
-
-  clearBuffers();
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CIPSTART=\"TCP\",\"192.168.1.2\",8000\r\n");
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-	  if(strstr((char *)rxBuffer,"CONNECT")){
-		  ATisOK = 1;
-	  }
-
-  }
-
-  clearBuffers();
-  if (!strstr((char *)rxBuffer, "STATUS:3")) {
-	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-
-  }
-
-  // ESP setup end
-
-
-//  LoRa_transmit(&myLoRa, TxData, 3, 500);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // LoRA
+
+	// === Sensors ===
+	// BMP280
+//	HAL_Delay(100);
+//	while (!bmp280_read_float(&bmp280, &temperature, &pressure, &humidity)) {
+//		size = sprintf((char *)Data,
+//				"Temperature/pressure reading failed\n");
+//
+//		HAL_UART_Transmit(&huart1, Data, size, 1000);
+//		HAL_Delay(2000);
+//	}
+//
+//	size = sprintf((char *)Data, // @suppress("Float formatting support")
+//		"Pressure: %.2f Pa, Temperature: %.2f C",
+//		pressure, temperature);
+//	HAL_UART_Transmit(&huart1, Data, size, 1000);
+//	if (bme280p) {
+//		size = sprintf((char *)Data,", Humidity: %.2f\n", humidity); // @suppress("Float formatting support")
+//		HAL_UART_Transmit(&huart1, Data, size, 1000);
+//	}
+//	else {
+//		size = sprintf((char *)Data, "\n");
+//		HAL_UART_Transmit(&huart1, Data, size, 1000);
+//	}
+//	HAL_Delay(2000);
+	// DHA20
+
+
+	  // === LoRA ===
 
 	  //packet_size = LoRa_receive(&myLoRa, received_data, 10);
 	  //packet_size = LoRa_receive(&myLoRa, read_data, 128);
 	  //HAL_Delay(500);
 
 
-	  // ESP-01s
+	  // === ESP-01s ===
 
 
   clearBuffers();
@@ -281,21 +334,21 @@ int main(void)
 	  HAL_Delay(200);
 	}
 
-//	clearBuffers();
-//
-//
-//	sprintf(toPost, "GET /api/get-response/ HTTP/1.1\r\n"
-//					"Host: 192.168.1.2:8000\r\n\r\n");
-//	sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
-//	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-//	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-//	HAL_Delay(500);
-//	if(strstr((char *)rxBuffer,">")){
-//		memset(rxBuffer,0,sizeof(rxBuffer));
-//		HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
-//		status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-//		HAL_Delay(500);
-//		}
+	clearBuffers();
+
+
+	sprintf(toPost, "GET /api/get-response/ HTTP/1.1\r\n"
+					"Host: 192.168.1.2:8000\r\n\r\n");
+	sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
+	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
+	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
+	HAL_Delay(500);
+	if(strstr((char *)rxBuffer,">")){
+		memset(rxBuffer,0,sizeof(rxBuffer));
+		HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
+		status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
+		HAL_Delay(500);
+		}
 
 
 

@@ -72,6 +72,10 @@ void Error_Handler(void);
 #define ESP_01S_TX_GPIO_Port GPIOA
 #define ESP_01S_RX_Pin GPIO_PIN_10
 #define ESP_01S_RX_GPIO_Port GPIOA
+#define SENSOR_SCL_Pin GPIO_PIN_6
+#define SENSOR_SCL_GPIO_Port GPIOB
+#define SENSOR_SDA_Pin GPIO_PIN_7
+#define SENSOR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
