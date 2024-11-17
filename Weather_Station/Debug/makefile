@@ -61,8 +61,8 @@ all: main-build
 main-build: Home_station.elf secondary-outputs
 
 # Tool invocations
-Home_station.elf Home_station.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Weather_Station\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Home_station.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Weather_Station\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Home_station.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Home_station.elf Home_station.map: $(OBJS) $(USER_OBJS) C:\Users\Sak\Documents\GitHub\STM32_weather_station\Weather_Station\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Home_station.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Sak\Documents\GitHub\STM32_weather_station\Weather_Station\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Home_station.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

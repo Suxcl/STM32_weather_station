@@ -163,30 +163,6 @@ int main(void)
 
   // ===== LoRa setup =====
 
-  myLoRa = newLoRa();
-
-  myLoRa.CS_port         = NSS_GPIO_Port;
-  myLoRa.CS_pin          = NSS_Pin;
-  myLoRa.reset_port      = RST_GPIO_Port;
-  myLoRa.reset_pin       = RST_Pin;
-  myLoRa.DIO0_port       = DIO0_GPIO_Port;
-  myLoRa.DIO0_pin        = DIO0_Pin;
-  myLoRa.hSPIx           = &hspi1;
-
-  myLoRa.frequency             = 433;							  // default = 433 MHz
-  myLoRa.spredingFactor        = SF_7;							// default = SF_7
-  myLoRa.bandWidth			   = BW_125KHz;				  // default = BW_125KHz
-  myLoRa.crcRate			   = CR_4_5;						// default = CR_4_5
-  myLoRa.power			       = POWER_20db;				// default = 20db
-  myLoRa.overCurrentProtection = 100; 							// default = 100 mA
-  myLoRa.preamble		       = 8;		  					// default = 8;
-
-  LoRa_reset(&myLoRa);
-
-  if(LoRa_init(&myLoRa)==LORA_OK){
-	LoRa_stat = 1;
-	blink(3, 500);
-  };
 
   //LoRa_startReceiving(&myLoRa);
 
@@ -202,7 +178,7 @@ int main(void)
 
 
 
-  esp_setup(&Esp);
+//  esp_setup(&Esp);
 
 
 
@@ -211,72 +187,72 @@ int main(void)
 	  memset(ATcommand,0,sizeof(ATcommand));
 	  memset(toPost,0,sizeof(toPost));
   }
-//
-//
-//  clearBuffers();
-//  sprintf(ATcommand,"AT+RST\r\n");
-//  memset(rxBuffer,0,sizeof(rxBuffer));
-//  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  status = HAL_UART_Receive(&huart1, rxBuffer, 10, 100);
-//  HAL_Delay(500);
-//
-//  ATisOK = 0;
-//  while(!ATisOK){
-//	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
-//	  if(strstr((char *)rxBuffer,"OK")){
-//		ATisOK = 1;
-//	  }
-//
-//  }
-//
-//
-//
-//
-//
-//  ATisOK = 0;
-//  while(!ATisOK){
-//	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
-//	  if(strstr((char *)rxBuffer,"CONNECTED")){
-//		  ATisOK = 1;
-//	  }
-//
-//  }
-//  ATisOK = 0;
-//  while(!ATisOK){
-//	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
-//	  if(strstr((char *)rxBuffer,"OK")){
-//		ATisOK = 1;
-//	  }
-//
-//  }
-//  ATisOK = 0;
-//  while(!ATisOK){
-//  	  sprintf(ATcommand,"AT+CIFSR\r\n");
-//  	  memset(rxBuffer,0,sizeof(rxBuffer));
-//  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
-//  	  if(strstr((char *)rxBuffer,"STAIP")){
-//  		ATisOK = 1;
-//  	  }
-//
-//  }
-//
-//  clearBuffers();
-//  if (!strstr((char *)rxBuffer, "STATUS:3")) {
-//	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-//
-//  }
+
+
+  clearBuffers();
+  sprintf(ATcommand,"AT+RST\r\n");
+  memset(rxBuffer,0,sizeof(rxBuffer));
+  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+  status = HAL_UART_Receive(&huart1, rxBuffer, 10, 100);
+  HAL_Delay(500);
+
+  ATisOK = 0;
+  while(!ATisOK){
+	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
+	  memset(rxBuffer,0,sizeof(rxBuffer));
+	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
+	  if(strstr((char *)rxBuffer,"OK")){
+		ATisOK = 1;
+	  }
+
+  }
+
+
+
+
+
+  ATisOK = 0;
+  while(!ATisOK){
+	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
+	  memset(rxBuffer,0,sizeof(rxBuffer));
+	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
+	  if(strstr((char *)rxBuffer,"CONNECTED")){
+		  ATisOK = 1;
+	  }
+
+  }
+  ATisOK = 0;
+  while(!ATisOK){
+	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
+	  memset(rxBuffer,0,sizeof(rxBuffer));
+	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
+	  if(strstr((char *)rxBuffer,"OK")){
+		ATisOK = 1;
+	  }
+
+  }
+  ATisOK = 0;
+  while(!ATisOK){
+  	  sprintf(ATcommand,"AT+CIFSR\r\n");
+  	  memset(rxBuffer,0,sizeof(rxBuffer));
+  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
+  	  if(strstr((char *)rxBuffer,"STAIP")){
+  		ATisOK = 1;
+  	  }
+
+  }
+
+  clearBuffers();
+  if (!strstr((char *)rxBuffer, "STATUS:3")) {
+	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
+	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
+	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
+
+  }
 
   /* USER CODE END 2 */
 
@@ -314,9 +290,6 @@ int main(void)
 
 	  // === LoRA ===
 
-	  //packet_size = LoRa_receive(&myLoRa, received_data, 10);
-	  //packet_size = LoRa_receive(&myLoRa, read_data, 128);
-	  //HAL_Delay(500);
 
 
 	  // === ESP-01s ===
