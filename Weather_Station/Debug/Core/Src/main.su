@@ -1,5 +1,5 @@
-../Core/Src/main.c:185:8:clearBuffers	16	static
-../Core/Src/main.c:121:5:main	2152	static
-../Core/Src/main.c:368:6:SystemClock_Config	72	static
-../Core/Src/main.c:406:6:HAL_GPIO_EXTI_Callback	16	static
-../Core/Src/main.c:421:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:135:6:LoRaSetRxMode	8	static
+../Core/Src/main.c:143:6:LoRaSetTxMode	8	static
+../Core/Src/main.c:155:5:main	32	static
+../Core/Src/main.c:314:6:SystemClock_Config	72	static
+../Core/Src/main.c:358:6:Error_Handler	4	static,ignoring_inline_asm

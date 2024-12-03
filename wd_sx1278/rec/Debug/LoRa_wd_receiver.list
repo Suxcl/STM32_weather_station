@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  00018325  00000000  00000000  0000e3c7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000982d  00000000  00000000  000266ec  2**0
+ 17 .debug_line   000097ac  00000000  00000000  000266ec  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00084203  00000000  00000000  0002ff19  2**0
+ 18 .debug_str    00084203  00000000  00000000  0002fe98  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000b411c  2**0
+ 19 .comment      00000043  00000000  00000000  000b409b  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000267c  00000000  00000000  000b4160  2**2
+ 20 .debug_frame  0000267c  00000000  00000000  000b40e0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000088  00000000  00000000  000b67dc  2**0
+ 21 .debug_line_str 00000088  00000000  00000000  000b675c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1870,6 +1870,7 @@ int main(void)
   MX_SPI1_Init();
  8000e0a:	f000 f937 	bl	800107c <MX_SPI1_Init>
   /* USER CODE BEGIN 2 */
+  // master 0 = slave chyba stacja
   master = 0;
  8000e0e:	4b66      	ldr	r3, [pc, #408]	@ (8000fa8 <main+0x1b0>)
  8000e10:	2200      	movs	r2, #0
@@ -1993,11 +1994,11 @@ int main(void)
  8000ed0:	2b01      	cmp	r3, #1
  8000ed2:	d132      	bne.n	8000f3a <main+0x142>
 
-	  	 	  			HAL_Delay(1000);
+			HAL_Delay(1000);
  8000ed4:	f44f 707a 	mov.w	r0, #1000	@ 0x3e8
  8000ed8:	f000 fae2 	bl	80014a0 <HAL_Delay>
 
-	  	 	  			message_length = sprintf(buffer, "Hello %d", message);
+			message_length = sprintf(buffer, "Hello %d", message);
  8000edc:	4b3b      	ldr	r3, [pc, #236]	@ (8000fcc <main+0x1d4>)
  8000ede:	681b      	ldr	r3, [r3, #0]
  8000ee0:	461a      	mov	r2, r3
@@ -2007,7 +2008,7 @@ int main(void)
  8000eea:	4603      	mov	r3, r0
  8000eec:	4a3a      	ldr	r2, [pc, #232]	@ (8000fd8 <main+0x1e0>)
  8000eee:	6013      	str	r3, [r2, #0]
-	  	 	  			ret = SX1278_LoRaEntryTx(&SX1278, message_length, 2000);
+			ret = SX1278_LoRaEntryTx(&SX1278, message_length, 2000);
  8000ef0:	4b39      	ldr	r3, [pc, #228]	@ (8000fd8 <main+0x1e0>)
  8000ef2:	681b      	ldr	r3, [r3, #0]
  8000ef4:	b2db      	uxtb	r3, r3
@@ -2018,11 +2019,11 @@ int main(void)
  8000f02:	4603      	mov	r3, r0
  8000f04:	4a2f      	ldr	r2, [pc, #188]	@ (8000fc4 <main+0x1cc>)
  8000f06:	6013      	str	r3, [r2, #0]
-	  	 	  			control_val = 0;
+			control_val = 0;
  8000f08:	4b28      	ldr	r3, [pc, #160]	@ (8000fac <main+0x1b4>)
  8000f0a:	2200      	movs	r2, #0
  8000f0c:	601a      	str	r2, [r3, #0]
-	  	 	  			ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) buffer,
+			ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) buffer,
  8000f0e:	4b32      	ldr	r3, [pc, #200]	@ (8000fd8 <main+0x1e0>)
  8000f10:	681b      	ldr	r3, [r3, #0]
  8000f12:	b2da      	uxtb	r2, r3
@@ -2033,47 +2034,47 @@ int main(void)
  8000f20:	4603      	mov	r3, r0
  8000f22:	4a28      	ldr	r2, [pc, #160]	@ (8000fc4 <main+0x1cc>)
  8000f24:	6013      	str	r3, [r2, #0]
-	  	 	  					message_length, 2000);
-	  	 	  			message += 1;
+					message_length, 2000);
+			message += 1;
  8000f26:	4b29      	ldr	r3, [pc, #164]	@ (8000fcc <main+0x1d4>)
  8000f28:	681b      	ldr	r3, [r3, #0]
  8000f2a:	3301      	adds	r3, #1
  8000f2c:	4a27      	ldr	r2, [pc, #156]	@ (8000fcc <main+0x1d4>)
  8000f2e:	6013      	str	r3, [r2, #0]
 
-	  	 	  			control_val = -1;
+			control_val = -1;
  8000f30:	4b1e      	ldr	r3, [pc, #120]	@ (8000fac <main+0x1b4>)
  8000f32:	f04f 32ff 	mov.w	r2, #4294967295
  8000f36:	601a      	str	r2, [r3, #0]
  8000f38:	e7c8      	b.n	8000ecc <main+0xd4>
-	  	 	  		} else {
+		} else {
 
-	  	 	  			HAL_Delay(800);
+			HAL_Delay(800);
  8000f3a:	f44f 7048 	mov.w	r0, #800	@ 0x320
  8000f3e:	f000 faaf 	bl	80014a0 <HAL_Delay>
-	  	 	  			control_val = 0;
+			control_val = 0;
  8000f42:	4b1a      	ldr	r3, [pc, #104]	@ (8000fac <main+0x1b4>)
  8000f44:	2200      	movs	r2, #0
  8000f46:	601a      	str	r2, [r3, #0]
-	  	 	  			ret = SX1278_LoRaRxPacket(&SX1278);
+			ret = SX1278_LoRaRxPacket(&SX1278);
  8000f48:	481d      	ldr	r0, [pc, #116]	@ (8000fc0 <main+0x1c8>)
  8000f4a:	f7ff fcd6 	bl	80008fa <SX1278_LoRaRxPacket>
  8000f4e:	4603      	mov	r3, r0
  8000f50:	461a      	mov	r2, r3
  8000f52:	4b1c      	ldr	r3, [pc, #112]	@ (8000fc4 <main+0x1cc>)
  8000f54:	601a      	str	r2, [r3, #0]
-	  	 	  			printf("Received: %d\r\n", ret);
+			printf("Received: %d\r\n", ret);
  8000f56:	4b1b      	ldr	r3, [pc, #108]	@ (8000fc4 <main+0x1cc>)
  8000f58:	681b      	ldr	r3, [r3, #0]
  8000f5a:	4619      	mov	r1, r3
  8000f5c:	481f      	ldr	r0, [pc, #124]	@ (8000fdc <main+0x1e4>)
  8000f5e:	f001 fe7f 	bl	8002c60 <iprintf>
-	  	 	  			if (ret > 0) {
+			if (ret > 0) {
  8000f62:	4b18      	ldr	r3, [pc, #96]	@ (8000fc4 <main+0x1cc>)
  8000f64:	681b      	ldr	r3, [r3, #0]
  8000f66:	2b00      	cmp	r3, #0
  8000f68:	dd12      	ble.n	8000f90 <main+0x198>
-	  	 	  				SX1278_read(&SX1278, (uint8_t*) buffer, ret);
+				SX1278_read(&SX1278, (uint8_t*) buffer, ret);
  8000f6a:	4b16      	ldr	r3, [pc, #88]	@ (8000fc4 <main+0x1cc>)
  8000f6c:	681b      	ldr	r3, [r3, #0]
  8000f6e:	b2db      	uxtb	r3, r3
@@ -2081,19 +2082,19 @@ int main(void)
  8000f72:	4918      	ldr	r1, [pc, #96]	@ (8000fd4 <main+0x1dc>)
  8000f74:	4812      	ldr	r0, [pc, #72]	@ (8000fc0 <main+0x1c8>)
  8000f76:	f7ff fdc8 	bl	8000b0a <SX1278_read>
-	  	 	  				printf("Content (%d): %s\r\n", ret, buffer);
+				printf("Content (%d): %s\r\n", ret, buffer);
  8000f7a:	4b12      	ldr	r3, [pc, #72]	@ (8000fc4 <main+0x1cc>)
  8000f7c:	681b      	ldr	r3, [r3, #0]
  8000f7e:	4a15      	ldr	r2, [pc, #84]	@ (8000fd4 <main+0x1dc>)
  8000f80:	4619      	mov	r1, r3
  8000f82:	4817      	ldr	r0, [pc, #92]	@ (8000fe0 <main+0x1e8>)
  8000f84:	f001 fe6c 	bl	8002c60 <iprintf>
-	  	 	  				control_val = -2;
+				control_val = -2;
  8000f88:	4b08      	ldr	r3, [pc, #32]	@ (8000fac <main+0x1b4>)
  8000f8a:	f06f 0201 	mvn.w	r2, #1
  8000f8e:	601a      	str	r2, [r3, #0]
-	  	 	  			}
-	  	 	  			control_val = -1;
+			}
+			control_val = -1;
  8000f90:	4b06      	ldr	r3, [pc, #24]	@ (8000fac <main+0x1b4>)
  8000f92:	f04f 32ff 	mov.w	r2, #4294967295
  8000f96:	601a      	str	r2, [r3, #0]

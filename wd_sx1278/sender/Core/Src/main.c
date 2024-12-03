@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : Main program body
+  * @brief          : LoRa Sender Example
   ******************************************************************************
   * @attention
   *
@@ -164,6 +164,7 @@ int main(void)
 	  	  				printf("Content (%d): %s\r\n", ret, buffer);
 	  	  			}
 	  	  			control_val = -1;
+	  	  			HAL_Delay(1000);
 
 	  	  		}
     /* USER CODE END WHILE */

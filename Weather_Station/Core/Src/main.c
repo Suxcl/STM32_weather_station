@@ -23,15 +23,22 @@
 #include "usart.h"
 #include "gpio.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "LoRa.h"
 #include "stdio.h"
 #include "string.h"
+#include <stdlib.h>
+//#include <time.h>
+
+
 #include "myFunctions.h"
+
 #include "bmp280.h"
+
 #include "esp01s.h"
+
+#include "SX1278.h"
+
 
 /* USER CODE END Includes */
 
@@ -76,30 +83,41 @@ uint8_t Data[256];
 
 // 		===== LoRa =====
 
-LoRa myLoRa;
-uint16_t LoRa_stat;
-uint8_t received_data[10];
-uint8_t packet_size = -1;
+SX1278_hw_t SX1278_hw;
+SX1278_t SX1278;
+int master;
+int ret;
 
-uint8_t read_data[128];
-uint8_t read_data2[2];
-uint8_t send_data[128];
-int			RSSI;
+char LoRaTxBuffer[128];
+char LoRaRxBuffer[128];
 
+int tx_message;
+int message_length;
+int tx_len;
+
+int timeout;
+int change_mode_time;
+//
+int counter = 5;
+
+int control_val=0;
 
 // 		===== ESP-01S =====
 
 Esp01s Esp;
-uint8_t f1;
-uint32_t f2;
-size_t ATSize = 150;
-char ATcommand[150];
-char toPost[512];
-size_t rxSize = 512;
-uint8_t rxBuffer[512] = {0};
-uint8_t ATisOK;
-
 HAL_StatusTypeDef status;
+// 		===== RTC =====
+
+//RTC_TimeTypeDef RtcTime;
+//char czas[128];
+
+//TODO
+// sprawdzanie czy esp jest połączony z siecą wifi z podanych danych
+//
+// okres czasowy do wysyłania i odbierania
+
+
+
 
 /* USER CODE END PV */
 
@@ -111,6 +129,22 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// Puts LoRa module in receive mode
+// -- LED should be off --
+void LoRaSetRxMode(){
+	ret = SX1278_LoRaEntryTx(&SX1278, 16, 2000);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+	while (GPIO_PIN_RESET == HAL_GPIO_ReadPin(LED_GPIO_Port, LED_Pin));
+}
+
+// Puts LoRa module in transmit mode
+// -- LED should be on --
+void LoRaSetTxMode(){
+	ret = SX1278_LoRaEntryRx(&SX1278, 16, 2000);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+	while (GPIO_PIN_RESET == HAL_GPIO_ReadPin(LED_GPIO_Port, LED_Pin));
+}
 
 /* USER CODE END 0 */
 
@@ -149,9 +183,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // === Sensor setup ===
 
-  bmp280_init_default_params(&bmp280.params);
-  bmp280.addr = BMP280_I2C_ADDRESS_0;
-  bmp280.i2c = &hi2c1;
+//  bmp280_init_default_params(&bmp280.params);
+//  bmp280.addr = BMP280_I2C_ADDRESS_0;
+//  bmp280.i2c = &hi2c1;
 
 //  while (!bmp280_init(&bmp280, &bmp280.params)) {
 //  	size = sprintf((char *)Data, "BMP280 initialization failed\n");
@@ -161,98 +195,41 @@ int main(void)
 //  size = sprintf((char *)Data, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
 //  HAL_Delay(100);
 
-  // ===== LoRa setup =====
+  /*
+   * 	===== LoRa setup =====
+   */
+  // This is main station so first mode should be Tx
+  // 0 - send mode
+  // 1 - receive mode
+  master = 1;
+  control_val++;
 
+  SX1278_hw.dio0.port = DIO0_GPIO_Port;
+  SX1278_hw.dio0.pin = DIO0_Pin;
+  SX1278_hw.nss.port = NSS_GPIO_Port;
+  SX1278_hw.nss.pin = NSS_Pin;
+  SX1278_hw.reset.port = RST_GPIO_Port;
+  SX1278_hw.reset.pin = RST_Pin;
+  SX1278_hw.spi = &hspi1;
 
-  //LoRa_startReceiving(&myLoRa);
+  control_val++;
+  SX1278_init(&SX1278, 434000000, SX1278_POWER_17DBM, SX1278_LORA_SF_7,
+		  SX1278_LORA_BW_125KHZ, SX1278_LORA_CR_4_5, SX1278_LORA_CRC_EN, 10);
+  control_val++;
 
-  // ===== ESP setup ======
+  LoRaSetRxMode();
+  control_val++;
 
-  Esp = newEsp01s(&huart1);
+  timeout = 10;
+  change_mode_time = 10;
+  /*
+   * 	===== ESP setup ======
+   *
+   */
 
-  sprintf(Esp.ssid,"Netis Hifi Point");
-  sprintf(Esp.password,"kajaK123");
-  sprintf(Esp.server_protocol,"TCP");
-  sprintf(Esp.server_ip,"192.168.1.2");
-  sprintf(Esp.server_port,"8000");
-
-
-
+//  Esp = newEsp01s(&huart1);
 //  esp_setup(&Esp);
-
-
-
-  void clearBuffers(){
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  memset(ATcommand,0,sizeof(ATcommand));
-	  memset(toPost,0,sizeof(toPost));
-  }
-
-
-  clearBuffers();
-  sprintf(ATcommand,"AT+RST\r\n");
-  memset(rxBuffer,0,sizeof(rxBuffer));
-  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-  status = HAL_UART_Receive(&huart1, rxBuffer, 10, 100);
-  HAL_Delay(500);
-
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
-	  if(strstr((char *)rxBuffer,"OK")){
-		ATisOK = 1;
-	  }
-
-  }
-
-
-
-
-
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
-	  if(strstr((char *)rxBuffer,"CONNECTED")){
-		  ATisOK = 1;
-	  }
-
-  }
-  ATisOK = 0;
-  while(!ATisOK){
-	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
-	  memset(rxBuffer,0,sizeof(rxBuffer));
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
-	  if(strstr((char *)rxBuffer,"OK")){
-		ATisOK = 1;
-	  }
-
-  }
-  ATisOK = 0;
-  while(!ATisOK){
-  	  sprintf(ATcommand,"AT+CIFSR\r\n");
-  	  memset(rxBuffer,0,sizeof(rxBuffer));
-  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
-  	  if(strstr((char *)rxBuffer,"STAIP")){
-  		ATisOK = 1;
-  	  }
-
-  }
-
-  clearBuffers();
-  if (!strstr((char *)rxBuffer, "STATUS:3")) {
-	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-
-  }
+//  start_connection(&Esp);
 
   /* USER CODE END 2 */
 
@@ -260,7 +237,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+//	sprintf((char*)czas, "Time: %02d:%02d:%02d\n\r",
+//			RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds);
 	// === Sensors ===
 	// BMP280
 //	HAL_Delay(100);
@@ -287,73 +265,41 @@ int main(void)
 //	HAL_Delay(2000);
 	// DHA20
 
+	  // change master to mode checking
+//	  counter = 5;
+//	  if(master == 1){
+//		// sending to sensor countdown to change modes and
+//		// timeout after which dsata should be send to station
+//		while(--counter>=0){
+//			rx_len = sprintf(LoRaTxBuffer, "%d,%d,%d", counter, change_mode_time ,timeout);
+//			ret = SX1278_LoRaEntryTx(&SX1278, message_length, 500);
+//			ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) LoRaTxBuffer,
+//									rx_len, 500);
+//
+//		}
+//		LoRaSetRxMode();
+//
+//
+//	  }else{
+//		  while(--counter>=0){
+//			ret = SX1278_LoRaRxPacket(&SX1278);
+//			// receive message do something with it
+//			// this should receive data from sensor
+//			if(ret > 0){
+//				SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret);
+//				control_val++;
+//			}
+//			HAL_Delay(1000);
+//		  }
+//		LoRaSetTxMode();
+//
+//	  }
 
-	  // === LoRA ===
+	  //send_post_req(&Esp);
 
-
-
-	  // === ESP-01s ===
-
-
-  clearBuffers();
-	ATisOK = 0;
-	while(!ATisOK){
-	  sprintf(ATcommand,"AT+CIPSTART=\"TCP\",\"192.168.1.2\",8000\r\n");
-	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-	  if(strstr((char *)rxBuffer,"CONNECT")){
-		  ATisOK = 1;
-	  }
-	  HAL_Delay(200);
-	}
-
-	clearBuffers();
-
-
-	sprintf(toPost, "GET /api/get-response/ HTTP/1.1\r\n"
-					"Host: 192.168.1.2:8000\r\n\r\n");
-	sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
-	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-	HAL_Delay(500);
-	if(strstr((char *)rxBuffer,">")){
-		memset(rxBuffer,0,sizeof(rxBuffer));
-		HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
-		status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-		HAL_Delay(500);
-		}
-
-
-
-	clearBuffers();
-	// POST request
-	sprintf(toPost,    	"POST /api/post-response/ HTTP/1.1\r\n"
-						"Host: 192.168.1.2:8000\r\n"
-						"Content-Type: text/plain\r\n"
-						"Content-Length: 7\r\n\r\n"
-						"1,2,3,4\r\n\r\n");
-
-
-	sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
-	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-	HAL_Delay(200);
-	if(strstr((char *)rxBuffer,">")){
-		memset(rxBuffer,0,sizeof(rxBuffer));
-		HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
-		status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-		HAL_Delay(200);
-	}
-
-	sprintf(ATcommand,"AT+CIPCLOSE\r\n");
-	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-	HAL_Delay(500);
-
-	HAL_Delay(2000);
-
-
-
+	// end delay default timeout
+//	HAL_Delay(timeout);
+	HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -403,15 +349,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 // EXTI interruption function
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  if(GPIO_Pin==DIO0_Pin){
-
-	  LoRa_receive(&myLoRa,read_data, 2);
-	  blink(5, 100);
-  }
-
-}
 /* USER CODE END 4 */
 
 /**

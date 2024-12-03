@@ -5,16 +5,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Drivers/SX1278.c \
-../Drivers/SX1278_hw.c 
+../Drivers/LoRa.c 
 
 OBJS += \
-./Drivers/SX1278.o \
-./Drivers/SX1278_hw.o 
+./Drivers/LoRa.o 
 
 C_DEPS += \
-./Drivers/SX1278.d \
-./Drivers/SX1278_hw.d 
+./Drivers/LoRa.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -24,7 +21,7 @@ Drivers/%.o Drivers/%.su Drivers/%.cyclo: ../Drivers/%.c Drivers/subdir.mk
 clean: clean-Drivers
 
 clean-Drivers:
-	-$(RM) ./Drivers/SX1278.cyclo ./Drivers/SX1278.d ./Drivers/SX1278.o ./Drivers/SX1278.su ./Drivers/SX1278_hw.cyclo ./Drivers/SX1278_hw.d ./Drivers/SX1278_hw.o ./Drivers/SX1278_hw.su
+	-$(RM) ./Drivers/LoRa.cyclo ./Drivers/LoRa.d ./Drivers/LoRa.o ./Drivers/LoRa.su
 
 .PHONY: clean-Drivers
 

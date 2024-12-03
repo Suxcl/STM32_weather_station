@@ -29,4 +29,14 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<variableList>
+		<variable>
+			<name>Esp01s</name>
+			<value>file:/C:/Users/jacub/Documents/GitHub/Stm32_weather_station/STM32_weather_station/Weather_Station/Drivers/Esp01s</value>
+		</variable>
+		<variable>
+			<name>LoRa</name>
+			<value>file:/C:/Users/jacub/Documents/GitHub/Stm32_weather_station/STM32_weather_station/Weather_Station/Drivers/LoRa</value>
+		</variable>
+	</variableList>
 </projectDescription>

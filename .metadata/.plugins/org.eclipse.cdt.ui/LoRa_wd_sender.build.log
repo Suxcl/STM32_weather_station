@@ -1,0 +1,10 @@
+22:12:06 **** Incremental Build of configuration Debug for project LoRa_wd_sender ****
+make -j12 all 
+arm-none-eabi-size  LoRa_wd_sender.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15816	    104	   2832	  18752	   4940	LoRa_wd_sender.elf
+Finished building: default.size.stdout
+ 
+
+22:12:06 Build Finished. 0 errors, 0 warnings. (took 209ms)
+

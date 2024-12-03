@@ -101,6 +101,7 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  // master 0 = slave chyba stacja
   master = 0;
 
     control_val++;
@@ -162,6 +163,21 @@ int main(void)
 			control_val = -1;
 
 		}
+//	  //change mode
+//	  		if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(MODE_GPIO_Port, MODE_Pin)) {
+//	  			printf("Changing mode\r\n");
+//	  			master = ~master & 0x01;
+//	  			if (master == 1) {
+//	  				ret = SX1278_LoRaEntryTx(&SX1278, 16, 2000);
+//	  				HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+//	  			} else {
+//	  				ret = SX1278_LoRaEntryRx(&SX1278, 16, 2000);
+//	  				HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+//	  			}
+//	  			HAL_Delay(1000);
+//	  			while (GPIO_PIN_RESET == HAL_GPIO_ReadPin(MODE_GPIO_Port, MODE_Pin))
+//	  				;
+//	  		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -23,29 +23,40 @@
 #define WIFI_CON_cmd "AT+CWJAP_CUR=";		// not full command
 #define WIFI_AUTO_CON_cmd "AT+CWAUTOCONN=1\r\n"
 // -- TCP commands --
-#define CHECK_STATUS_cmd "AT+STATUS\r\n"
+#define CHECK_STATUS_cmd "AT+CIPSTATUS\r\n"
+#define GET_IP_cmd "AT+CIFSR\r\n"
 #define TCP_CON_START_cmd "AT+CIPSTART=" // not full command
 #define TCP_CON_SEND_cmd "AT+CIPSEND=" // not full command
 #define TCP_CON_CLOSE_cmd "AT+CIPCLOSE\r\n"
 // ok status
 #define AT_OK					0
-#define AT_FAIL					1
+#define AT_FAIL					-1
 // wifi status
 #define CWJAP_CUR_OK 			0
-#define CWJAP_CUR_TIMEOUT   	1
-#define CWJAP_CUR_WRONG_PASS 	2
-#define CWJAP_CUR_BAD_AP		3
-#define CWJAP_CUR_CON_FAIL		4
-// CIPMUX
+#define CWJAP_CUR_TIMEOUT   	-1
+#define CWJAP_CUR_WRONG_PASS 	-2
+#define CWJAP_CUR_BAD_AP		-3
+#define CWJAP_CUR_CON_FAIL		-4
+// station status
+#define STATION_MODE			1
+#define SOTFAP_MODE				2
+#define SOFTSTATION_MODE		3
+#define MODE_ERR				-1
+// CIPMUX con_count status
 #define CIPMUX_ONE				0
 #define CIPMUX_MUL				1
-// STATION SETUP
-#define STATION_SET				0
-#define STATION_ERR				1
-// one max setup
-#define ONE_CON_MODE_OK			0
-#define ONE_CON_MODE_ERR		1
-
+#define CIPMUX_ERR				-1
+// tcp con status
+#define TCP_CON_STARTED			0
+#define TCP_CON_ENDED			1
+#define TCP_CON_START_ERR		-1
+#define TCP_CON_END_ERR			-2
+// get req status
+#define GET_SEND_OK				0
+#define GET_SEND_ERR			-1
+// post req status
+#define POST_SEND_OK			0
+#define POST_SEND_ERR			-1
 // STATUS status
 #define STATUS_INACTIVE			0
 #define STATUS_IDLE				1
@@ -55,45 +66,40 @@
 #define STATUS_NO_AP_CON		5
 
 
-// tcp start
-#define SER_CON_OK				0
-#define SER_CON_ERR				1
 // wifi
 #define WIFI_CON				0
-#define WIFI_ERR				1
-
+#define WIFI_ALREADY_CON		1
+#define WIFI_ERR				-1
 
 
 typedef struct Esp01s_settings{
 
 	// buffers
 	char TxBuffer[512];
-	char RxBuffer[512];
+	uint8_t RxBuffer[512];
 	int  RxSize;
-	char PostData[512];
+	char PostReq[2048];
+	char PostBody[1024];
 
 	// hardware
 	UART_HandleTypeDef* esp_uart;
 
-	// settings
-	int 	mode;
-	int 	connection_amount;
-	// wifi
-	char  	ssid[100];
-	char 	password[100];
+	char esp_ip[20];
+	char conn_server_ip[20];
+
 	// server info
-	char 	server_protocol[50];
-	char	server_ip[50];
-	char	server_port[50];
-	char 	server_post_link[100];
-	char 	server_get_link[100];
 
 	// setup flags
 	int 	ok_status;
 	int 	station_status;
 	int 	wifi_status;
-	int 	one_con_status;
-	int 	conn_status;
+	int 	con_count_status;
+	int 	tcp_con_status;
+	int 	get_req_status;
+	int 	post_req_status;
+
+	// if status works theb get values
+
 
 
 } Esp01s;
@@ -108,6 +114,7 @@ void reset_by_wire();
 void mode_set_station(Esp01s* esp);
 void connect_to_ap(Esp01s* esp);
 void set_max_one_con(Esp01s* esp);
+void get_ip_from_wifi(Esp01s* esp);
 void check_status(Esp01s* esp);
 void start_connection(Esp01s* esp);
 void end_connection(Esp01s* esp);
