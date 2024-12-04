@@ -4159,9 +4159,9 @@ int main(void)
  800219c:	6812      	ldr	r2, [r2, #0]
  800219e:	2000      	movs	r0, #0
  80021a0:	9005      	str	r0, [sp, #20]
- 80021a2:	2000      	movs	r0, #0
+ 80021a2:	2028      	movs	r0, #40	@ 0x28
  80021a4:	9004      	str	r0, [sp, #16]
- 80021a6:	2000      	movs	r0, #0
+ 80021a6:	2028      	movs	r0, #40	@ 0x28
  80021a8:	9003      	str	r0, [sp, #12]
  80021aa:	f240 30fd 	movw	r0, #1021	@ 0x3fd
  80021ae:	9002      	str	r0, [sp, #8]
@@ -4173,7 +4173,7 @@ int main(void)
  80021bc:	4811      	ldr	r0, [pc, #68]	@ (8002204 <main+0x294>)
  80021be:	f7ff fbf7 	bl	80019b0 <send_post_req>
 						  	  	  	  temp2, humi2, 1021 ,			// sensor_1 values
-									  0, 0, 0);					// sensor_2 values
+									  40, 40, 0);					// sensor_2 values
 
 				  // -----------------
 				  control_val++;

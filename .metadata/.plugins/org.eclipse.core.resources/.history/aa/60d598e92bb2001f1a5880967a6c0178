@@ -329,7 +329,7 @@ int main(void)
 				  // send post request
 				  send_post_req(&Esp, (int)temp, (int)humi, 1021 ,  // station values
 						  	  	  	  temp2, humi2, 1021 ,			// sensor_1 values
-									  40, 40, 0);					// sensor_2 values
+									  40, 40, 1000);					// sensor_2 values
 
 				  // -----------------
 				  control_val++;
