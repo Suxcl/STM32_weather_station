@@ -611,3 +611,17 @@ org.eclipse.core.runtime.CoreException: Setup exceptions
 
 !ENTRY org.eclipse.cdt.core 1 0 2024-12-03 15:46:10.811
 !MESSAGE Indexed 'Sensor1' (22 sources, 81 headers) in 2.13 sec: 4,056 declarations; 17,927 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.0091%)
+
+!ENTRY org.eclipse.core.resources 2 2 2024-12-04 00:29:47.007
+!MESSAGE Save operation warnings.
+!SUBENTRY 1 org.eclipse.core.resources 2 234 2024-12-04 00:29:47.007
+!MESSAGE The project description file (.project) for 'Sensor1' was missing.  This file contains important information about the project.  A new project description file has been created, but some information about the project may have been lost.
+
+!ENTRY org.eclipse.cdt.core 1 0 2024-12-04 00:40:56.963
+!MESSAGE Indexed 'Sensor_1' (25 sources, 118 headers) in 1.26 sec: 9,165 declarations; 44,239 references; 3 unresolved inclusions; 36 syntax errors; 192 unresolved names (0.36%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2024-12-04 00:40:59.477
+!MESSAGE Indexed 'Sensor_1' (25 sources, 118 headers) in 0.913 sec: 9,165 declarations; 44,239 references; 3 unresolved inclusions; 36 syntax errors; 192 unresolved names (0.36%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2024-12-04 00:41:07.224
+!MESSAGE Indexed 'Sensor_1' (25 sources, 118 headers) in 0.913 sec: 9,165 declarations; 44,239 references; 3 unresolved inclusions; 36 syntax errors; 192 unresolved names (0.36%)

@@ -61,7 +61,7 @@ main-build: Sensor_1.elf secondary-outputs
 
 # Tool invocations
 Sensor_1.elf Sensor_1.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_1\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Sensor_1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_1\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor_1.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Sensor_1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_1\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor_1.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

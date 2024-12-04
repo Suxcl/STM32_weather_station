@@ -1,0 +1,17 @@
+../Core/Src/esp01s.c:84:5:giveRandom	1
+../Core/Src/esp01s.c:90:6:clearBuffers	1
+../Core/Src/esp01s.c:96:8:newEsp01s	1
+../Core/Src/esp01s.c:105:6:esp_transmit	1
+../Core/Src/esp01s.c:109:6:esp_receive	1
+../Core/Src/esp01s.c:114:6:check_at	2
+../Core/Src/esp01s.c:125:6:reset_by_wire	1
+../Core/Src/esp01s.c:144:6:mode_set_station	2
+../Core/Src/esp01s.c:154:6:connect_to_ap	5
+../Core/Src/esp01s.c:184:6:set_max_one_con	2
+../Core/Src/esp01s.c:194:6:get_ip_from_wifi	1
+../Core/Src/esp01s.c:201:6:check_status	1
+../Core/Src/esp01s.c:207:6:start_connection	2
+../Core/Src/esp01s.c:224:6:end_connection	2
+../Core/Src/esp01s.c:235:6:send_get_req	1
+../Core/Src/esp01s.c:245:6:send_post_req	3
+../Core/Src/esp01s.c:334:6:esp_setup	2
