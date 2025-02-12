@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Station/Core/Inc/BMXX80.h&apos; to &apos;BMPXX80.h&apos;" description="Rename resource &apos;BMXX80.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/Inc/BMXX80.h" name="BMPXX80.h" stamp="1736855695368" updateReferences="true"/>
+</session>

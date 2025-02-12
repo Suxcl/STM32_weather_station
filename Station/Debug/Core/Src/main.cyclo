@@ -1,8 +1,9 @@
-../Core/Src/main.c:137:6:AHT20_Read	3
-../Core/Src/main.c:168:6:clearTx	1
-../Core/Src/main.c:172:6:clearRx	1
-../Core/Src/main.c:177:6:LoRaSetRxMode	1
-../Core/Src/main.c:187:6:LoRaSetTxMode	1
-../Core/Src/main.c:202:5:main	4
-../Core/Src/main.c:361:6:SystemClock_Config	3
-../Core/Src/main.c:404:6:Error_Handler	1
+../Core/Src/main.c:153:6:clearTx	1
+../Core/Src/main.c:157:6:clearRx	1
+../Core/Src/main.c:162:6:LoRaSetRxMode	1
+../Core/Src/main.c:172:6:LoRaSetTxMode	1
+../Core/Src/main.c:180:6:retrieve_sensor_data	4
+../Core/Src/main.c:261:6:Esp_send_get	1
+../Core/Src/main.c:279:5:main	5
+../Core/Src/main.c:420:6:SystemClock_Config	3
+../Core/Src/main.c:463:6:Error_Handler	1

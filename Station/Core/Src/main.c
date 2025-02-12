@@ -30,6 +30,11 @@
 #include <string.h>
 #include "SX1278.h"
 #include "esp01s.h"
+#include "readings.h"
+
+#include "BMP280_sak.h"
+#include "AHT20.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,72 +55,86 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
 /*
- * ===== Sensors =====
+ * ===== Flags =====
  */
-float temp;
-float humi;
 
-//BMP280_HandleTypedef bmp280;
+// If flag is set run code involving LoRa
+#define LORA
+// If flag is set run code involving ESP
+#define ESP
 
-float pressure, temperature, humidity;
 
-uint16_t size;
-uint8_t Data[256];
 /*
- * 	===== LoRa =====
+ * ===== Sensors variables =====
+ */
+
+
+// float values read from sensors
+float temperature = 0;
+float humidity = 0;
+float pressure = 0;
+
+// Reading converted to int before sending
+int sensor_id = -1;
+int temperature_int = 0;
+int humidity_int = 0;
+int pressure_int = 0;
+
+// Reading
+Readings readings;
+
+/*
+ * 	===== LoRa variables =====
  */
 SX1278_hw_t SX1278_hw;
 SX1278_t SX1278;
-int master;
+int receiver;
 int ret;
 
 char LoRaTxBuffer[512];
 char LoRaRxBuffer[512];
 
-int tx_message;
-int message_length;
 int tx_len;
-
-int timeout;
-int reverse_mode_time;
-//
-int counter = 5;
 
 int control_val=0;
 
-char exess[10];
 /*
- *	====== ESP =======
+ *	====== ESP variables =======
  */
 Esp01s Esp;
 HAL_StatusTypeDef status;
 /*
- * ====== Timeouts =======
+ * ====== Timeout variables =======
  	 	 1000 == 1 sec
 
 	Sensor_1 - Main station
 	Sensor_2 - First Sensor
 	Sensor_3 - Second Sensor
 
+	get_check = How often station checks from changes in delays from browser
+
 */
 uint32_t current_time;				// current tick
-uint32_t timestamp_s1;
-uint32_t timestamp_s2;				// Tick when
-uint32_t timestamp_s3;
 
-uint32_t sensor_1_timeout = 20000;
-uint32_t sensor_2_timeout = 14000;
-uint32_t sensor_3_timeout = 20000;
+uint32_t get_timeout = 60 * 1000;
+uint32_t get_wake_up = 60 * 1000;
 
-uint32_t sensor_1_wakeup;
-uint32_t sensor_2_wakeup;
-uint32_t sensor_3_wakeup;
+uint32_t sensor_1_timeout = 20 * 1000;
+//uint32_t sensor_2_timeout = 20 * 1000;
+uint32_t sensor_2_timeout = 10 * 1000;
+uint32_t sensor_3_timeout = 20 * 1000;
 
-
+uint32_t sensor_1_wakeup = 20 * 1000;
+//uint32_t sensor_2_wakeup = 20 * 1000;
+uint32_t sensor_2_wakeup = 10 * 1000;
+uint32_t sensor_3_wakeup = 20 * 1000;
 
 uint32_t inside_counter;
 
+int reverse_time = 3;
+int test_val = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -126,41 +145,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-/*  ----------------------------------
- * 		Sensors Functions
- *  ----------------------------------
- */
 
-#define AHT_ADDR	0x38<<1
-#define HI2C      hi2c1
-
-void AHT20_Read(float* Temp, float* Humid)
-{
-	uint8_t dum[6];
-	HAL_I2C_Mem_Read(&HI2C, AHT_ADDR, 0x71, 1, dum, 1, 100);
-
-	if(!(dum[0]&(1<<3)))
-	{
-		dum[0] = 0xBE, dum[1] = 0x08, dum[2] = 0x00;
-		HAL_I2C_Master_Transmit(&HI2C, AHT_ADDR, dum, 3, 100);
-		HAL_Delay(10);
-	}
-
-	dum[0] = 0xAC, dum[1] = 0x33, dum[2] = 0x00;
-	HAL_I2C_Master_Transmit(&HI2C, AHT_ADDR, dum, 3, 100);
-	HAL_Delay(80);
-
-	do {
-		HAL_I2C_Mem_Read(&HI2C, AHT_ADDR, 0x71, 1, dum, 1, 100);
-		HAL_Delay(1);
-	} while(dum[0]&(1<<7));
-
-	HAL_I2C_Master_Receive(&HI2C, AHT_ADDR, dum, 6, 100);
-	uint32_t h20 = (dum[1])<<12 | (dum[2])<<4 | (dum[3]>>4);
-	uint32_t t20 = (dum[3]&0x0F)<<16 | (dum[4])<<8 | dum[5];
-	*Temp = (t20 / 1048576.0)*200.0 - 50.0;
-	*Humid = h20 / 10485.76;
-}
 /*  ----------------------------------
  * 		LoRa Functions
  *  ----------------------------------
@@ -170,27 +155,135 @@ void clearTx(){
 }
 
 void clearRx(){
-	memset(LoRaRxBuffer,0,sizeof(LoRaTxBuffer));
+	memset(LoRaRxBuffer,0,sizeof(LoRaRxBuffer));
 }
 // Puts LoRa module in receive mode
 // -- LED should be off --
 void LoRaSetRxMode(){
 	clearRx();
-	ret = SX1278_LoRaEntryRx(&SX1278, 16, 2000);
+	SX1278_LoRaEntryRx(&SX1278, 16, 2000);
 	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-	master = 1;
-
+	receiver = 1;
+	HAL_Delay(500);
 }
 
 // Puts LoRa module in transmit mode
 // -- LED should be on --
 void LoRaSetTxMode(){
 	clearTx();
-	ret = SX1278_LoRaEntryTx(&SX1278, 16, 2000);
+	SX1278_LoRaEntryTx(&SX1278, 16, 2000);
 	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-	master = 0;
+	receiver = 0;
+	HAL_Delay(500);
+}
+
+void retrieve_onboard_sensor_data(){
+	AHT20_Read(&temperature, &humidity);
+	pressure = BMP280_ReadPressure(&hi2c1);
+
+	sensor_id = 1;
+	temperature_int = (int)temperature;
+	humidity_int = (int)humidity;
+	pressure_int = (int)pressure;
+
+	#ifdef ESP
+	  send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, sensor_id);
+	#endif
+	addData(&readings, sensor_id, temperature_int, humidity_int, pressure_int);
+}
+
+
+void retrieve_sensor_data(int sensorID){
+	// Send info to sensor
+	tx_len = sprintf(LoRaTxBuffer, "%d,%d",sensorID, reverse_time);
+	ret = SX1278_LoRaEntryTx(&SX1278, tx_len, 2000);
+	ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) LoRaTxBuffer,
+							tx_len, 2000);
+	// Set RX mode, Read sensor data
+	HAL_Delay(500);
+	LoRaSetRxMode();
+
+	// Calculate how long keep listening for anwser
+	current_time = HAL_GetTick();
+	inside_counter = current_time+(reverse_time*1000);
+
+	// Listen for response
+	while(HAL_GetTick()<=inside_counter){
+		ret = SX1278_LoRaRxPacket(&SX1278);		// return gives length of received data
+		if(ret > 0){
+			SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret); // read data send
+
+			int s_id;
+			sscanf(LoRaRxBuffer, "%d,%d,%d,%d",
+								  &s_id,
+								  &temperature_int,
+								  &humidity_int,
+								  &pressure_int);
+
+
+			if(s_id == sensorID){
+				sensor_id = s_id;
+				addData(&readings, sensorID, temperature_int, humidity_int, pressure_int);
+				#ifdef ESP
+					send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, sensorID);
+				#endif
+			}
+
+
+		}
+
+		break;
+	}
+	LoRaSetTxMode();
 
 }
+
+
+//		if(ret > 0){
+//
+//
+////				  char s_id[3];
+////				  int temp, humi, pres;
+////				  sscanf(LoRaRxBuffer, "%[^,],%d,%d,%d",
+////						  sensor_id, &temperature_int, &humidity_int, &pressure_int);
+//				int s_id;
+//			    sscanf(LoRaRxBuffer, "%d,%d,%d,%d",
+//							  &s_id,
+//							  &temperature_int,
+//							  &humidity_int,
+//							  &pressure_int);
+//
+////				  sensor_id = 2;
+////				  temperature_int = temp;
+////				  humidity_int = humi;
+////				  pressure_int = pres;
+//			    if(s_id == sensorID){
+//					#ifdef ESP
+//			    		send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, 1);
+//		  	  	  	#endif
+//			    }
+//
+//		  break;
+//		}
+		//			  HAL_Delay(100);
+//	}
+//
+//}
+
+/*  ----------------------------------
+ * 		Esp Functions
+ *  ----------------------------------
+ */
+void Esp_send_get(){
+	send_get_req(&Esp);
+	sensor_1_timeout = Esp.timers[0];
+	sensor_2_timeout = Esp.timers[1];
+	sensor_3_timeout = Esp.timers[2];
+}
+
+
+
+
 
 //while (GPIO_PIN_RESET == HAL_GPIO_ReadPin(LED_GPIO_Port, LED_Pin));
 /* USER CODE END 0 */
@@ -229,52 +322,53 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   /*	=====================
-   * 		  	LoRa
+   * 		  	LoRa Init
    * 	=====================
    */
-  master = 1;
+  #ifdef LORA
+	  receiver = 1;
 
-  control_val++;
-  // Setup port and pins for LoRa
-  SX1278_hw.dio0.port = DIO0_GPIO_Port;
-  SX1278_hw.dio0.pin = DIO0_Pin;
-  SX1278_hw.nss.port = NSS_GPIO_Port;
-  SX1278_hw.nss.pin = NSS_Pin;
-  SX1278_hw.reset.port = RST_GPIO_Port;
-  SX1278_hw.reset.pin = RST_Pin;
-  SX1278_hw.spi = &hspi1;
+	  control_val++;
+	  // Setup port and pins for LoRa
+      SX1278_hw.dio0.port = DIO0_GPIO_Port;
+	  SX1278_hw.dio0.pin = DIO0_Pin;
+	  SX1278_hw.nss.port = NSS_GPIO_Port;
+	  SX1278_hw.nss.pin = NSS_Pin;
+	  SX1278_hw.reset.port = RST_GPIO_Port;
+	  SX1278_hw.reset.pin = RST_Pin;
+	  SX1278_hw.spi = &hspi1;
 
-  SX1278.hw = &SX1278_hw;
+	  SX1278.hw = &SX1278_hw;
 
-  // Init function
-  control_val++;
-  SX1278_init(&SX1278, 434000000, SX1278_POWER_17DBM, SX1278_LORA_SF_7,
-		  SX1278_LORA_BW_125KHZ, SX1278_LORA_CR_4_5, SX1278_LORA_CRC_EN, 10);
-  control_val++;
+	  control_val++;
+	  SX1278_init(&SX1278, 434000000, SX1278_POWER_17DBM, SX1278_LORA_SF_7,
+			  SX1278_LORA_BW_125KHZ, SX1278_LORA_CR_4_5, SX1278_LORA_CRC_EN, 10);
+	  control_val++;
 
-
-  LoRaSetTxMode();						// Set mode to TX
-  control_val++;
+	  LoRaSetTxMode();						// Set mode to TX
+	  control_val++;
+  #endif
   /*	=====================
-   * 		  	ESP
-   * 	=====================
-   */
-  Esp = newEsp01s(&huart1);				// Define new ESP typedef
-  esp_setup(&Esp);						// Run setup for ESP
-  start_connection(&Esp);				// Start connection with data sever
+	 * 		  Sensors Init
+	 * 	=====================
+	 */
+  // SAK
+  BMP280_Init(&hi2c1);
+
+  // Storing readings
+  readings = newR();
 
   /*	=====================
-   * 		   Timers
+   * 		  	ESP Init
    * 	=====================
    */
-  timeout = 10;
-  reverse_mode_time = 5;
 
-  current_time = HAL_GetTick();
-  timestamp_s1 = current_time;
-  timestamp_s2 = current_time;
-
-  sensor_2_wakeup = sensor_2_timeout + current_time;
+  #ifdef ESP
+	  Esp = newEsp01s(&huart1);				// Define new ESP typedef
+	  esp_setup(&Esp);						// Run setup for ESP
+	  start_connection(&Esp);				// Start connection with data sever
+	  Esp_send_get();
+  #endif
 
   /* USER CODE END 2 */
 
@@ -282,69 +376,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+	  // Read current time in milliseconds
 	  current_time = HAL_GetTick();
-
-	  // sum of timestamp + timout timer
-	  if((sensor_2_wakeup<=current_time)){
-
-		  // Set Timestamp and wakeup value for another data request
-		  timestamp_s2 = HAL_GetTick();
-		  sensor_2_wakeup = sensor_2_timeout + HAL_GetTick();
-
-		  // Set counter for sending info to 5sec
-
-		  inside_counter = HAL_GetTick() + 5000;
-
-		  // Send info to sensor_1
-
-		  tx_len = sprintf(LoRaTxBuffer, "%s,%d","S1", 3);
-		  ret = SX1278_LoRaEntryTx(&SX1278, tx_len, 1000);
-		  ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) LoRaTxBuffer,
-												tx_len, 1000);
-
-
-		  // Set RX mode
-		  // Read sensor data
-		  LoRaSetRxMode();
-		  AHT20_Read(&temp, &humi);
-		  HAL_Delay(1000);
-
-
-		  // For 5 sec wait for value from sensor
-		  inside_counter = HAL_GetTick()+5000;
-
-		  while(HAL_GetTick()<=inside_counter){
-			  ret = SX1278_LoRaRxPacket(&SX1278);		// ret gives length of received data
-			  if(ret > 0){
-				  SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret); // read data send
-				  // --- To change ---
-				  // Give each sensor endpoint to
-				  // send request each timeout for sensor
-				  char s_id[3];
-				  int temp2, humi2, pres3;
-				  sscanf(LoRaRxBuffer, "%[^,],%d,%d,%d",
-						  s_id, &temp2, &humi2, &pres3);
-
-				  // send post request
-				  send_post_req(&Esp, (int)temp, (int)humi, 1021 ,  // station values
-						  	  	  	  temp2, humi2, 1021 ,			// sensor_1 values
-									  40, 40, 0);					// sensor_2 values
-
-				  // -----------------
-				  control_val++;
-			  }
-		  }
-
-
-
-		  LoRaSetTxMode();
-
-
-
-
-
+	  // Sensor 1 wake up
+	  if((sensor_1_wakeup<=current_time)){
+		  sensor_1_wakeup = sensor_1_timeout + HAL_GetTick();
+		  retrieve_onboard_sensor_data();
 	  }
+
+	  // Sensor 2 wake up
+	  if((sensor_2_wakeup<=current_time)){
+		  // Set wake up value for another data request
+		  sensor_2_wakeup = sensor_2_timeout + HAL_GetTick();
+		  retrieve_sensor_data(2);
+	  }
+
+	  // Sensor 3 wake up
+	  if((sensor_3_wakeup<=current_time)){
+		  // Set wake up value for another data request
+		  sensor_3_wakeup = sensor_3_timeout + HAL_GetTick();
+		  retrieve_sensor_data(3);
+	  }
+
+	  // In set timeout check for change in reading timeouts
+	  #ifdef ESP
+		  if((get_wake_up<=current_time)){
+			  get_wake_up = get_timeout+HAL_GetTick();
+			  Esp_send_get();
+		  }
+	  #endif
+
 
 
     /* USER CODE END WHILE */
@@ -428,3 +489,67 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+
+
+//
+// WHOLE SENSOR 2 FUNCTION
+//
+
+// Sensor 2 wake up
+//	  if((sensor_2_wakeup<=current_time)){
+//
+//		  // Set wake up value for another data request
+//		  sensor_2_wakeup = sensor_2_timeout + HAL_GetTick();
+//
+//		  retrieve_sensor_data(2);
+////		  // Send info to sensor_1
+////		  tx_len = sprintf(LoRaTxBuffer, "%d,%d",2, reverse_time);
+////		  ret = SX1278_LoRaEntryTx(&SX1278, tx_len, 2000);
+////		  ret = SX1278_LoRaTxPacket(&SX1278, (uint8_t*) LoRaTxBuffer,
+////												tx_len, 2000);
+////		  // Set RX mode, Read sensor data
+////		  HAL_Delay(500);
+////		  LoRaSetRxMode();
+////
+////		  // For 5 sec wait for value from sensor
+////		  current_time = HAL_GetTick();
+////		  inside_counter = current_time+(reverse_time*1000);
+////
+////
+////		  test_val = 0;
+////		  while(HAL_GetTick()<=inside_counter){
+////			  test_val++;
+////			  ret = SX1278_LoRaRxPacket(&SX1278);		// return gives length of received data
+////			  if(ret > 0){
+////				  SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret); // read data send
+//////				  char s_id[3];
+//////				  int temp, humi, pres;
+//////				  sscanf(LoRaRxBuffer, "%[^,],%d,%d,%d",
+//////						  sensor_id, &temperature_int, &humidity_int, &pressure_int);
+////
+////				  sscanf(LoRaRxBuffer, "%d,%d,%d,%d",
+////				  						  &sensor_id,
+////										  &temperature_int,
+////										  &humidity_int,
+////										  &pressure_int);
+////
+//////				  sensor_id = 2;
+//////				  temperature_int = temp;
+//////				  humidity_int = humi;
+//////				  pressure_int = pres;
+////
+////				  #ifdef ESP
+////				  	  send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, 1);
+////		  	      #endif
+////
+////				  control_val++;
+////				  break;
+////			  }
+//////			  HAL_Delay(100);
+////		  }
+////		  LoRaSetTxMode();
+////		  test_val = 0;
+//
+//	  }
+//

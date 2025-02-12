@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include <string.h>
+#include <reading_data.h>
+
+
+typedef struct Readings_data{
+	int s1_temp[1024];
+	int s1_hui[1024];
+	int s1_pres[1024];
+	int s2_temp[1024];
+	int s2_hui[1024];
+	int s2_pres[1024];
+	int s3_temp[1024];
+	int s3_hui[1024];
+	int s3_pres[1024];
+
+} Readings_data;
+
+

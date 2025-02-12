@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <string.h>
+#include <reading_data.h>
+
+
+Readings newR(){
+	Readings new_R;
+	new_R.s1_size = 0;
+	new_R.s2_size = 0;
+	new_R.s3_size = 0;
+	new_R.size = 1024;
+
+	return new_R;
+}
+
+void append(Readings r, int sensor, int t, int h, int p){
+	switch(sensor){
+		case 1:
+
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+	}
+}
+
+
+

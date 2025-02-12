@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <string.h>
+#include <reading_data.h>
+
+
+Readings newR(){
+	Readings new_R;
+	new_R.s1_size = 0;
+	new_R.s2_size = 0;
+	new_R.s3_size = 0;
+	new_R.size = 1024;
+
+	return new_R;
+}
+
+void append(Readings r, int sensor, int t, int h, int p){
+	switch(sensor){
+		case 1:
+			if(r.s1_size == 1024){
+				break;
+			}
+			r.s1_temp[r.s1_size] = t;
+			r.s1_humi[r.s1_size] = h;
+			r.s1_pres[r.s1_size] = p;
+		    r.s1_size++;
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+	}
+}
+
+
+

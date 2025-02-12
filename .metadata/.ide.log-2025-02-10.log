@@ -1,0 +1,60 @@
+2025-02-10 20:24:49,947 [INFO] LogOutputStream:77 - [STDOUT_REDIRECT] 
+2025-02-10 20:24:52,474 [INFO] ProjectBuilder:5154 - Time for Generating toolchain IDE Files: 3487mS.
+2025-02-10 20:24:52,478 [INFO] ProjectBuilder:3146 - Time for Copy CMSIS : 4mS.
+2025-02-10 20:24:52,482 [INFO] ProjectBuilder:3146 - Time for Copy CMSIS : 2mS.
+2025-02-10 20:26:33,804 [INFO] NvicIntPanel:101 - NVIC parent = com.st.microxplorer.plugins.ip.nvic.MultiNvicIntPanel[,0,0,0x0,invalid,layout=javax.swing.BoxLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]
+2025-02-10 20:26:33,871 [WARN] IP:2251 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:33,871 [WARN] IP:2251 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:33,871 [WARN] IP:2251 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:33,871 [WARN] IP:2251 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:35,743 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 576230864 Bytes (898629632)
+2025-02-10 20:26:36,606 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 591967200 Bytes (898629632)
+2025-02-10 20:26:38,482 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 670088160 Bytes (898629632)
+2025-02-10 20:26:38,704 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: SPI
+2025-02-10 20:26:38,704 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: NVIC
+2025-02-10 20:26:38,705 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: USART
+2025-02-10 20:26:38,705 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: SYS
+2025-02-10 20:26:38,705 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: GPIO
+2025-02-10 20:26:38,705 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: RCC
+2025-02-10 20:26:38,705 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: I2C
+2025-02-10 20:26:38,706 [INFO] CodeGenerator:896 - code generatio: config db path: C:\ST\STM32CubeIDE_1.16.0\STM32CubeIDE\plugins\com.st.stm32cube.common.mx_6.13.0.202411220809\\db\
+2025-02-10 20:26:38,707 [WARN] IP:2251 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:38,707 [WARN] IP:2251 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-02-10 20:26:38,760 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\MXTmpFiles\license.tmp_save
+2025-02-10 20:26:38,835 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\MXTmpFiles\license.tmp
+2025-02-10 20:26:38,868 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\gpio.c_save
+2025-02-10 20:26:38,961 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\gpio.c
+2025-02-10 20:26:38,967 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\gpio.h_save
+2025-02-10 20:26:39,043 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\gpio.h
+2025-02-10 20:26:39,138 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\i2c.c_save
+2025-02-10 20:26:39,259 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\i2c.c
+2025-02-10 20:26:39,264 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\i2c.h_save
+2025-02-10 20:26:39,322 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\i2c.h
+2025-02-10 20:26:39,340 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\spi.c_save
+2025-02-10 20:26:39,432 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\spi.c
+2025-02-10 20:26:39,438 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\spi.h_save
+2025-02-10 20:26:39,501 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\spi.h
+2025-02-10 20:26:39,524 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\usart.c_save
+2025-02-10 20:26:39,616 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\usart.c
+2025-02-10 20:26:39,622 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\usart.h_save
+2025-02-10 20:26:39,690 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\usart.h
+2025-02-10 20:26:39,715 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\stm32f1xx_it.c_save
+2025-02-10 20:26:39,808 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\stm32f1xx_it.c
+2025-02-10 20:26:39,813 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\stm32f1xx_it.h_save
+2025-02-10 20:26:39,861 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\stm32f1xx_it.h
+2025-02-10 20:26:39,885 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\stm32f1xx_hal_msp.c_save
+2025-02-10 20:26:39,964 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\stm32f1xx_hal_msp.c
+2025-02-10 20:26:39,967 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\MXTmpFiles\system.tmp_save
+2025-02-10 20:26:40,007 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\MXTmpFiles\system.tmp
+2025-02-10 20:26:40,026 [INFO] CodeEngine:311 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\stm32f1xx_hal_conf.h_save
+2025-02-10 20:26:40,111 [INFO] CodeEngine:335 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\stm32f1xx_hal_conf.h
+2025-02-10 20:26:40,154 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\main.h_save
+2025-02-10 20:26:40,229 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Inc\main.h
+2025-02-10 20:26:40,243 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\main.c_save
+2025-02-10 20:26:40,328 [INFO] CodeEngine:279 - Generated code: C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Station\Core\Src\main.c
+2025-02-10 20:26:40,472 [INFO] ProjectBuilder:3289 - Time for Copy HAL[2] : 2mS.
+2025-02-10 20:26:40,476 [INFO] ProjectBuilder:4876 - Project Generator version: 4.5.0-RC5
+2025-02-10 20:26:40,532 [INFO] ConfigFileManager:1579 - The Die is : DIE410
+2025-02-10 20:26:41,266 [INFO] ProjectBuilder:5154 - Time for Generating toolchain IDE Files: 790mS.
+2025-02-10 20:26:41,268 [INFO] ProjectBuilder:3146 - Time for Copy CMSIS : 1mS.
+2025-02-10 20:26:41,272 [INFO] ProjectBuilder:3146 - Time for Copy CMSIS : 1mS.
