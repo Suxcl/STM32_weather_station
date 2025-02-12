@@ -1,22 +1,32 @@
 SX1278
 SX1278_hw
-control_val
-current_time
-tx_len
-ret
-inside_counter
 LoRaTxBuffer
 LoRaRxBuffer
+receiver
+ret
+tx_len
+control_val
+==== ESP =====
+Esp
+=== Sensors ===
 sensor_id
-sensor_2_wakeup
-temp
-humi
-pressure
 temperature
 humidity
-bmp280
-Esp
-temp_int
-humi_int
+pressure
+temperature_int
+humidity_int
+pressure_int
+readings
+-
+-
+-
+-
+=== Timers ===
+current_time
+inside_counter
+sensor_1_wakeup
+sensor_2_wakeup
+sensor_3_wakeup
+get_wake_up
+reverse_time
 test_val
-buffer
