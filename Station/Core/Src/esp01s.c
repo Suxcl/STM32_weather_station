@@ -8,87 +8,44 @@
 #include "gpio.h"
 
 // hard values
-
-// WIFI
-
-//char ssid[] = "Netis Hifi Point";
-//char password[] = "kajaK123";
+// wifi
+//#define motoHotspot
+#define Netis
+// Ip Adress
+#define MATIWAN
+//#define MATILAN
+//#define MOTOHOTSPOT
 
 // HOTSPOT
-
-char ssid[] = "moto";
-char password[] = "jdjdjdjd";
-
-// Mati wifi
-
-//char ssid[] = "ARRIS-7A66";
-//char password[] = "ucNEjnjBqc6J";
-
-// Mati LAN
-
-//char server_protocol[] = "TCP";
-//char server_ip[] = "192.168.0.69";
-//char server_port[] = "3000";
-//char api_get_path[] = "/local_weathers/";
-//char api_post_path[] = "/local_weathers/";
+#ifdef motoHotspot
+//char ssid[] = "moto";
+//char password[] = "jdjdjdjd";
+#endif
+#ifdef Netis
+char ssid[] = "Netis Hifi Point";
+char password[] = "kajaK123";
+#endif
 
 
-// Mati WAN
+
+
+#ifdef MATILAN
+ 	char server_ip[] = "192.168.0.69";
+#endif
+#ifdef MATIWAN
+	char server_ip[] = "85.193.245.146";
+#endif
+#ifdef MOTOHOTSPOT
+#endif
+
 
 char server_protocol[] = "TCP";
-char server_ip[] = "85.193.245.146";
 int server_port = 3000;
 char api_get_path[] = "/sensors/frequency/";
 char api_post_path[] = "/local_weathers/";
 
 
-// Sak django
-//char ssid[] = "Netis Hifi Point";
-//char password[] = "kajaK123";
-//char server_protocol[] = "TCP";
-//char server_ip[] = "192.168.1.2";
-//char server_port[] = "8000";
-//char api_get_path[] = "/local_weathers/";
-//char api_post_path[] = "/local_weathers/";
 
-
-
-
-
-
-
-// TODO
-// setup (check if somethink is already connected)
-// send request
-// get somethinks maybe multiple data from multiple requests
-
-// what data go to post for sensor info
-// 	sensor data for each data collector(names)
-//		- temperature
-// 		- humidity
-//
-//
-//
-
-// what goes from the site into hardware
-//	sensor info
-//		- name
-//		- wifi connection
-//			- ssid
-//			- password
-//	communication
-//		- timers
-//			- for lora sending data (same timer goes for sending data from esp to server)
-//			- timer for board to check if somethink is to change
-//		- server info where to send and get data
-//
-//
-//
-
-
-//int giveRandom(int min, int max){
-//	return rand() % (max - min + 1) + min;
-//}
 
 
 // fill buffers with 0's
@@ -210,11 +167,7 @@ void check_status(Esp01s* esp){
 
 void start_connection(Esp01s* esp){
 	memset(esp->TxBuffer,0,sizeof(esp->TxBuffer));
-//	sprintf(esp->TxBuffer,"AT+CIPSTART=\"%s\",\"%s\",%d\r\n",
-//			server_protocol,
-//			server_ip,
-//			server_port);
-	sprintf(esp->TxBuffer,"AT+CIPSTART=\"TCP\",\"85.193.245.146\",3000\r\n");
+	sprintf(esp->TxBuffer,"AT+CIPSTART=\"TCP\",\"%s\",%d\r\n", server_ip, server_port);
 
 
 	esp_transmit(esp,esp->TxBuffer, 1000);
@@ -276,9 +229,9 @@ void send_get_req(Esp01s* esp){
 			char *index_s2 = strstr((char *)esp->RxBuffer,"\"S2\":");
 			char *index_s3 = strstr((char *)esp->RxBuffer,"\"S3\":");
 
-			sscanf(index_s1+5, "%d", &timers[0]);
-			sscanf(index_s2+5, "%d", &timers[1]);
-			sscanf(index_s3+5, "%d", &timers[2]);
+			sscanf((index_s1+5), "%d", &timers[0]);
+			sscanf((index_s2+5), "%d", &timers[1]);
+			sscanf((index_s3+5), "%d", &timers[2]);
 
 			esp->timers[0] = timers[0];
 			esp->timers[1] = timers[1];
@@ -410,9 +363,10 @@ void send_single_sensor_post_req(Esp01s* esp,int t, int h, int p, int id_sensor)
 	if(strstr((char *)esp->RxBuffer,"STATUS:3")){
 		// good connectio
 	}else{
-		// bad conncetion
+		end_connection(esp);
+		start_connection(esp);
 	}
-
+	memset(esp->TxBuffer,0,sizeof(esp->TxBuffer));
 	sprintf(esp->TxBuffer,"AT+CIPSEND=%d\r\n", strlen(esp->PostReq));
 	//	sending CIPSEND with length of PostReg
 	esp_transmit(esp, esp->TxBuffer, 1000);
@@ -431,6 +385,7 @@ void send_single_sensor_post_req(Esp01s* esp,int t, int h, int p, int id_sensor)
 			reset_by_wire();
 			HAL_Delay(5000);
 		}
+
 	}
 }
 
@@ -443,9 +398,9 @@ void send_single_sensor_post_req(Esp01s* esp,int t, int h, int p, int id_sensor)
 void esp_setup(Esp01s* esp){
 	check_at(esp);
 	while(esp->ok_status != AT_OK){
-//		reset_by_wire();
+		reset_by_wire();
+		HAL_Delay(2000);
 		check_at(esp);
-		// fatal error no communication with board
 	}
 	mode_set_station(esp);
 	connect_to_ap(esp);
@@ -453,188 +408,3 @@ void esp_setup(Esp01s* esp){
 	get_ip_from_wifi(esp);
 	check_status(esp);
 }
-
-// unused
-
-//void clearBuffers(){
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  memset(ATcommand,0,sizeof(ATcommand));
-//	  memset(toPost,0,sizeof(toPost));
-//  }
-//
-//
-//  clearBuffers();
-//  sprintf(ATcommand,"AT+RST\r\n");
-//  memset(rxBuffer,0,sizeof(rxBuffer));
-//  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  status = HAL_UART_Receive(&huart1, rxBuffer, 10, 100);
-//  HAL_Delay(500);
-  // for one connection
-//  ATisOK = 0;
-//  while(!ATisOK){
-//	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
-//	  if(strstr((char *)rxBuffer,"OK")){
-//		ATisOK = 1;
-//	  }
-//
-//  }
-  // for many connections
-//  ATisOK = 0;
-//    while(!ATisOK){
-//  	  sprintf(ATcommand,"AT+CWMODE_CUR=1\r\n");
-//  	  memset(rxBuffer,0,sizeof(rxBuffer));
-//  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  	  status = HAL_UART_Receive(&huart1, rxBuffer, 150, 1000);
-//  	  if(strstr((char *)rxBuffer,"OK")){
-//  		ATisOK = 1;
-//  	  }
-//
-//    }
-//
-//
-//
-//
-//  ATisOK = 0;
-//  while(!ATisOK){
-////	  sprintf(ATcommand,"AT+CWJAP_CUR=\"Netis Hifi Point\",\"kajaK123\"\r\n");
-//	  sprintf(ATcommand,"AT+CWJAP_CUR=\"ARRIS-7A66\",\"ucNEjnjBqc6J\"\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive(&huart1, rxBuffer, 150, 20000);
-//	  if(strstr((char *)rxBuffer,"CONNECTED")){
-//		  ATisOK = 1;
-//	  }
-//
-//  }
-//  ATisOK = 0;
-//  while(!ATisOK){
-//	  sprintf(ATcommand,"AT+CIPMUX=0\r\n");
-//	  memset(rxBuffer,0,sizeof(rxBuffer));
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive(&huart1, rxBuffer, 50, 1000);
-//	  if(strstr((char *)rxBuffer,"OK")){
-//		ATisOK = 1;
-//	  }
-//
-//  }
-//  ATisOK = 0;
-//  while(!ATisOK){
-//  	  sprintf(ATcommand,"AT+CIFSR\r\n");
-//  	  memset(rxBuffer,0,sizeof(rxBuffer));
-//  	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  	  HAL_UART_Receive(&huart1, rxBuffer, 50, 2000);
-//  	  if(strstr((char *)rxBuffer,"STAIP")){
-//  		ATisOK = 1;
-//  	  }
-//
-//  }
-//
-//  clearBuffers();
-//  if (!strstr((char *)rxBuffer, "STATUS:3")) {
-//	  sprintf(ATcommand,"AT+CIPSTATUS\r\n");
-//	  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//	  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-//
-//  }
-//
-//clearBuffers();
-//ATisOK = 0;
-//while(!ATisOK){
-////	  sprintf(ATcommand,"AT+CIPSTART=\"TCP\",\"192.168.1.2\",8000\r\n");
-//  sprintf(ATcommand,"AT+CIPSTART=\"TCP\",\"192.168.0.69\",3000\r\n");
-//  HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),1000);
-//  HAL_UART_Receive (&huart1, rxBuffer, 512, 1000);
-//  if(strstr((char *)rxBuffer,"CONNECT")){
-//	  ATisOK = 1;
-//  }
-//  HAL_Delay(200);
-//}
-//
-//clearBuffers();
-//
-//
-////	sprintf(toPost, "GET /api/get-response/ HTTP/1.1\r\n"
-////					"Host: 192.168.1.2:8000\r\n\r\n");
-////	sprintf(toPost, "GET /local_weathers/ HTTP/1.1\r\n"
-////						"Host: 192.168.0.69:3000\r\n\r\n");
-////	sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
-////	HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-////	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-////	HAL_Delay(500);
-////	if(strstr((char *)rxBuffer,">")){
-////		memset(rxBuffer,0,sizeof(rxBuffer));
-////		HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
-////		status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-////		HAL_Delay(500);
-////		}
-//
-//
-//
-//clearBuffers();
-//// POST request
-////	sprintf(toPost,    	"POST /api/post-response/ HTTP/1.1\r\n"
-////						"Host: 192.168.1.2:8000\r\n"
-////						"Content-Type: text/plain\r\n"
-////						"Content-Length: 7\r\n\r\n"
-////						"1,2,3,4\r\n\r\n");
-//
-//int temp_val_1 = giveRandom(22, 24);
-//int temp_val_2 = giveRandom(22, 24);
-//int temp_val_3 = giveRandom(22, 24);
-//int humi_val_1 = giveRandom(48, 50);
-//int humi_val_2 = giveRandom(48, 50);
-//int humi_val_3 = giveRandom(48, 50);
-//int pres_val_1 = giveRandom(1018, 1020);
-//int pres_val_2 = giveRandom(1018, 1020);
-//int pres_val_3 = giveRandom(1018, 1020);
-//
-//
-//sprintf(postBody, "{"
-//"\"readings\":{"
-//  "\"reading1\":{"
-//      "\"temp\":%d,"
-//      "\"humi\":%d,"
-//      "\"pres\":%d,"
-//      "\"sensor\":1"
-//  "},"
-//  "\"reading2\":{"
-//      "\"temp\":%d,"
-//      "\"humi\":%d,"
-//      "\"pres\":%d,"
-//      "\"sensor\":2"
-//  "},"
-//  "\"reading3\":{"
-//      "\"temp\": %d,"
-//      "\"humi\": %d,"
-//      "\"pres\": %d,"
-//      "\"sensor\":3"
-//  "}"
-//"}}", temp_val_1, humi_val_1, pres_val_1, temp_val_2, humi_val_2, pres_val_2, temp_val_3, humi_val_3, pres_val_3);
-//
-//
-//sprintf(toPost,    	"POST /local_weathers/ HTTP/1.1\r\n"
-//						"Host: 192.168.0.69:3000\r\n"
-//						"Content-Type: application/json\r\n"
-//						"Content-Length: %d\r\n\r\n"
-//						"%s\r\n\r\n", strlen(postBody), postBody);
-//
-//
-//
-//sprintf(ATcommand,"AT+CIPSEND=%d\r\n", strlen(toPost));
-//HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-//status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-//HAL_Delay(200);
-//if(strstr((char *)rxBuffer,">")){
-//	memset(rxBuffer,0,sizeof(rxBuffer));
-//	HAL_UART_Transmit(&huart1,(uint8_t *)toPost,strlen(toPost),1000);
-//	status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-//	HAL_Delay(200);
-//}
-//
-//sprintf(ATcommand,"AT+CIPCLOSE\r\n");
-//HAL_UART_Transmit(&huart1,(uint8_t *)ATcommand,strlen(ATcommand),3000);
-//status = HAL_UART_Receive(&huart1, rxBuffer, 512, 5000);
-//HAL_Delay(500);

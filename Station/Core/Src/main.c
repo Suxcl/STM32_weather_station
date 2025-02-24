@@ -214,12 +214,7 @@ void retrieve_sensor_data(int sensorID){
 			SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret); // read data send
 
 			int s_id;
-			sscanf(LoRaRxBuffer, "%d,%d,%d,%d",
-								  &s_id,
-								  &temperature_int,
-								  &humidity_int,
-								  &pressure_int);
-
+			sscanf(LoRaRxBuffer, "%d,%d,%d,%d", &s_id, &temperature_int, &humidity_int, &pressure_int);
 
 			if(s_id == sensorID){
 				sensor_id = s_id;
@@ -228,10 +223,7 @@ void retrieve_sensor_data(int sensorID){
 					send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, sensorID);
 				#endif
 			}
-
-
 		}
-
 		break;
 	}
 	LoRaSetTxMode();
@@ -239,36 +231,6 @@ void retrieve_sensor_data(int sensorID){
 }
 
 
-//		if(ret > 0){
-//
-//
-////				  char s_id[3];
-////				  int temp, humi, pres;
-////				  sscanf(LoRaRxBuffer, "%[^,],%d,%d,%d",
-////						  sensor_id, &temperature_int, &humidity_int, &pressure_int);
-//				int s_id;
-//			    sscanf(LoRaRxBuffer, "%d,%d,%d,%d",
-//							  &s_id,
-//							  &temperature_int,
-//							  &humidity_int,
-//							  &pressure_int);
-//
-////				  sensor_id = 2;
-////				  temperature_int = temp;
-////				  humidity_int = humi;
-////				  pressure_int = pres;
-//			    if(s_id == sensorID){
-//					#ifdef ESP
-//			    		send_single_sensor_post_req(&Esp, temperature_int, humidity_int, pressure_int, 1);
-//		  	  	  	#endif
-//			    }
-//
-//		  break;
-//		}
-		//			  HAL_Delay(100);
-//	}
-//
-//}
 
 /*  ----------------------------------
  * 		Esp Functions
@@ -328,8 +290,6 @@ int main(void)
   #ifdef LORA
 	  receiver = 1;
 
-	  control_val++;
-	  // Setup port and pins for LoRa
       SX1278_hw.dio0.port = DIO0_GPIO_Port;
 	  SX1278_hw.dio0.pin = DIO0_Pin;
 	  SX1278_hw.nss.port = NSS_GPIO_Port;
@@ -340,13 +300,11 @@ int main(void)
 
 	  SX1278.hw = &SX1278_hw;
 
-	  control_val++;
 	  SX1278_init(&SX1278, 434000000, SX1278_POWER_17DBM, SX1278_LORA_SF_7,
 			  SX1278_LORA_BW_125KHZ, SX1278_LORA_CR_4_5, SX1278_LORA_CRC_EN, 10);
-	  control_val++;
 
 	  LoRaSetTxMode();						// Set mode to TX
-	  control_val++;
+
   #endif
   /*	=====================
 	 * 		  Sensors Init

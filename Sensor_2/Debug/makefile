@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := Sensor_1
+BUILD_ARTIFACT_NAME := Sensor_2
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-Sensor_1.elf \
+Sensor_2.elf \
 
 MAP_FILES += \
-Sensor_1.map \
+Sensor_2.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-Sensor_1.list \
+Sensor_2.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: Sensor_1.elf secondary-outputs
+main-build: Sensor_2.elf secondary-outputs
 
 # Tool invocations
-Sensor_1.elf Sensor_1.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_1\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Sensor_1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_1\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor_1.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Sensor_2.elf Sensor_2.map: $(OBJS) $(USER_OBJS) C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_2\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Sensor_2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\jacub\Documents\GitHub\Stm32_weather_station\STM32_weather_station\Sensor_2\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Sensor_2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-Sensor_1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Sensor_1.list"
+Sensor_2.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Sensor_2.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) Sensor_1.elf Sensor_1.list Sensor_1.map default.size.stdout
+	-$(RM) Sensor_2.elf Sensor_2.list Sensor_2.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

@@ -201,7 +201,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  control_val = 0;
 	  ret = SX1278_LoRaRxPacket(&SX1278);
 	  if (ret > 0) {
 		  // Setup Timers
@@ -209,15 +208,11 @@ int main(void)
 
 		  // Read buffer
 		  SX1278_read(&SX1278, (uint8_t*) LoRaRxBuffer, ret);
-//		  sscanf(LoRaRxBuffer, "%[^,],%d",s_id, &reverse_time);
 		  sscanf(LoRaRxBuffer, "%d,%d",&rec_sensor_id, &reverse_time);
 
-//		  if(strstr((char *)LoRaRxBuffer,"S2")){	// 	If good sensor_id
 		  if(rec_sensor_id == 2){
-
 			  LoRaSetTxMode();							// 	Go into TX mode
-
-			  AHT20_Read(&temperature, &humidity); 				// Read sensor data
+			  AHT20_Read(&temperature, &humidity); 	 	// Read sensor data
 			  pressure = BMP280_ReadPressure(&hi2c1);
 			  temperature_int = (int)temperature;
 			  humidity_int = (int)humidity;
@@ -226,7 +221,7 @@ int main(void)
 			  current_time = HAL_GetTick();
 			  inside_counter = current_time + (reverse_time * 1000);
 
-			  tx_len = sprintf(LoRaTxBuffer, "2,%d,%d,%d",temperature_int, humidity_int, pressure_int);
+			  tx_len = sprintf(LoRaTxBuffer, "%d,%d,%d,%d",sensor_id,temperature_int, humidity_int, pressure_int);
 
 			  while(HAL_GetTick()<=inside_counter){
 				  ret = SX1278_LoRaEntryTx(&SX1278, tx_len, 2000);
@@ -238,8 +233,6 @@ int main(void)
 			  rec_sensor_id = -1;
 		  }
 	  }
-	  control_val = -1;
-
   }
   /* USER CODE END 3 */
 }
